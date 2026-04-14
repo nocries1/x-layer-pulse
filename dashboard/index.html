@@ -227,6 +227,85 @@
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ─── Inner pages (Strategy / Wallet / Onchain OS) ── */
+  .page.hidden { display: none; }
+  .page-inner { padding: 36px 40px 60px; max-width: 1240px; margin: 0 auto; }
+  .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .page-sub { color: var(--text-2); font-size: 13px; margin-top: 6px; }
+  .section-head { font-size: 14px; font-weight: 600; margin-top: 36px; }
+  .section-sub { color: var(--muted); font-size: 12px; margin-top: 4px; margin-bottom: 12px; }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .c-label {
+    font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    font-weight: 500; margin-bottom: 10px;
+  }
+  .c-value { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .c-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+  .c-sub { font-size: 11px; color: var(--text-2); margin-top: 6px; }
+  .c-sub a { color: var(--green); text-decoration: none; }
+  .c-sub a:hover { text-decoration: underline; }
+
+  .gate-list { padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; }
+  .gate-list li {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 14px; font-size: 13px; color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .gate-list li::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); flex: 0 0 6px;
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  .chain-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chain-chip {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--text-2);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .chain-chip.primary { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .skill-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .skill-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .skill-name { font-weight: 700; font-size: 14px; }
+  .skill-id { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .skill-desc { font-size: 12px; color: var(--text-2); line-height: 1.55; }
+  .skill-cmds { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-block; padding: 3px 8px; border-radius: 4px;
+    background: var(--bg-elev); border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green);
+  }
+  .skill-usage {
+    font-size: 11px; color: var(--muted);
+    display: flex; justify-content: space-between; gap: 12px;
+    margin-top: 2px; border-top: 1px solid var(--border); padding-top: 10px;
+  }
+  .skill-usage .file { font-family: 'JetBrains Mono', monospace; }
 </style>
 </head>
 <body>
@@ -237,10 +316,10 @@
     X Layer Pulse
   </div>
   <div class="nav-tabs">
-    <a href="#" class="active">Live Feed</a>
-    <a href="#">Strategy</a>
-    <a href="#">Wallet</a>
-    <a href="#">Onchain OS</a>
+    <a href="#live" data-page="live" class="active">Live Feed</a>
+    <a href="#strategy" data-page="strategy">Strategy</a>
+    <a href="#wallet" data-page="wallet">Wallet</a>
+    <a href="#skills" data-page="skills">Onchain OS</a>
   </div>
   <div class="nav-right">
     <span class="pill live">Live</span>
@@ -249,6 +328,7 @@
   </div>
 </nav>
 
+<section class="page" id="page-live">
 <div class="kpis">
   <div class="kpi">
     <div class="kpi-label">Signals seen</div>
@@ -268,7 +348,7 @@
   <div class="kpi">
     <div class="kpi-label">Last action</div>
     <div class="kpi-value" id="kpi-last">—</div>
-    <div class="kpi-sub" id="kpi-mode">mode: …</div>
+    <div class="kpi-sub" id="kpi-mode">connecting…</div>
   </div>
 </div>
 
@@ -320,6 +400,42 @@
     </div>
   </section>
 </div>
+</section>
+
+<section class="page hidden" id="page-strategy">
+  <div class="page-inner">
+    <div class="page-title">Strategy</div>
+    <div class="page-sub">How the agent decides when to copy a whale trade.</div>
+    <div class="cards" id="strat-cards">
+      <div class="card"><div class="c-label">Loading…</div></div>
+    </div>
+    <div class="section-head">Safety gates</div>
+    <div class="section-sub">Every signal must pass all of them before the executor touches it.</div>
+    <ul class="gate-list" id="strat-gates"></ul>
+  </div>
+</section>
+
+<section class="page hidden" id="page-wallet">
+  <div class="page-inner">
+    <div class="page-title">Agentic Wallet</div>
+    <div class="page-sub">TEE-backed onchain identity. Signing happens inside OKX's secure enclave.</div>
+    <div class="cards" id="wallet-cards">
+      <div class="card"><div class="c-label">Loading…</div></div>
+    </div>
+    <div class="section-head">Chains supported by this account</div>
+    <div class="chain-list" id="wallet-chains"></div>
+  </div>
+</section>
+
+<section class="page hidden" id="page-skills">
+  <div class="page-inner">
+    <div class="page-title">Onchain OS Integration</div>
+    <div class="page-sub">Four Onchain OS skills wired into a single reactive loop. No custom smart contracts, no local keys.</div>
+    <div class="skill-grid" id="skills-grid">
+      <div class="skill-card"><div class="skill-desc">Loading…</div></div>
+    </div>
+  </div>
+</section>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -359,9 +475,9 @@ function prepend(id, node, max) {
 
 function renderEvent(ev) {
   if (ev.type === 'boot') {
-    $('m-net').textContent = ev.network;
+    $('m-net').textContent = ev.network === 'mainnet' ? 'X Layer Mainnet' : 'X Layer Testnet';
     $('m-addr').textContent = shortAddr(ev.address);
-    $('kpi-mode').textContent = 'mode: ' + ev.mode;
+    $('kpi-mode').textContent = 'X Layer · chainId ' + (ev.network === 'mainnet' ? '196' : '195');
     return;
   }
   if (ev.type !== 'tick') return;
@@ -456,6 +572,128 @@ function connect() {
 }
 
 loadInitial().then(connect);
+
+/* ─── Tab switching + secondary pages ──────────────── */
+const loaders = { strategy: loadStrategy, wallet: loadWallet, skills: loadSkills };
+const loaded = {};
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  const target = document.getElementById('page-' + name);
+  if (target) target.classList.remove('hidden');
+  document.querySelectorAll('.nav-tabs a').forEach(a =>
+    a.classList.toggle('active', a.dataset.page === name));
+  if (!loaded[name] && loaders[name]) {
+    loaded[name] = true;
+    loaders[name]();
+  }
+}
+
+document.querySelectorAll('.nav-tabs a').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    showPage(a.dataset.page);
+  });
+});
+
+function card(label, value, sub, mono) {
+  return '<div class="card">' +
+    '<div class="c-label">' + label + '</div>' +
+    '<div class="c-value' + (mono ? ' mono' : '') + '">' + value + '</div>' +
+    (sub ? '<div class="c-sub">' + sub + '</div>' : '') +
+  '</div>';
+}
+
+async function loadStrategy() {
+  try {
+    const r = await fetch('/api/strategy');
+    const s = await r.json();
+    const netName = s.network === 'mainnet' ? 'X Layer Mainnet' : 'X Layer Testnet';
+    const modelSub = s.anthropicEnabled
+      ? 'Claude API connected'
+      : 'Deterministic fallback active';
+    $('strat-cards').innerHTML = [
+      card('Network', netName, 'chainId ' + s.chainId),
+      card('Reasoning model', s.model, modelSub),
+      card('Copy size', '$' + s.copySizeUsdc + ' USDC', 'per execution'),
+      card('Poll interval', s.pollIntervalSec + 's', 'signal feed cadence'),
+      card('Max slippage', s.maxSlippagePct + '%', 'via DEX aggregator'),
+      card('Min signal size', '$' + Number(s.minSignalUsd).toLocaleString(), 'whale-buy floor'),
+      card('Min market cap', '$' + Number(s.minMarketCapUsd).toLocaleString(), 'below this → skip'),
+      card('Max risk score', s.maxRiskScore + ' / 100', 'via x402-paid risk feed'),
+    ].join('');
+    $('strat-gates').innerHTML = s.safetyGates.map(g => '<li>' + g + '</li>').join('');
+  } catch (e) {
+    $('strat-cards').innerHTML = card('Error', 'Could not load strategy', e.message);
+  }
+}
+
+async function loadWallet() {
+  try {
+    const r = await fetch('/api/wallet');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const w = await r.json();
+    const xl = (w.addresses && w.addresses.xlayer && w.addresses.xlayer[0]) || null;
+    const evm = (w.addresses && w.addresses.evm) || [];
+    const sol = (w.addresses && w.addresses.solana && w.addresses.solana[0]) || null;
+    const primary = xl ? xl.address : (evm[0] ? evm[0].address : null);
+
+    const explorer = primary
+      ? '<a target="_blank" href="https://www.oklink.com/xlayer/address/' + primary + '">view on OKLink ↗</a>'
+      : 'n/a';
+
+    const evmCount = evm.length;
+
+    $('wallet-cards').innerHTML = [
+      card('Account', (w.status && w.status.currentAccountName) || '—',
+        w.status && w.status.loggedIn ? 'Signed in · TEE enclave' : 'Not signed in'),
+      card('X Layer address', primary ? shortAddr(primary) : '—', explorer, true),
+      card('EVM reach', primary ? shortAddr(primary) : '—',
+        'Supports X Layer + ' + evmCount + ' other EVM chains (same address)', true),
+      sol
+        ? card('Solana address', shortAddr(sol.address), 'Base58 · chainIndex 501', true)
+        : card('Solana address', '—', 'not derived for this account'),
+      card('Signing', 'TEE enclave', 'Private key never leaves OKX secure enclave'),
+      card('Gas cost on X Layer', '$0.00', 'X Layer charges zero gas fees'),
+    ].join('');
+
+    const chips = [];
+    if (xl) chips.push('<span class="chain-chip primary">X Layer</span>');
+    if (evm.length) {
+      evm.slice(0, 10).forEach(c => chips.push('<span class="chain-chip">' + c.chainName + '</span>'));
+      if (evm.length > 10) chips.push('<span class="chain-chip">+' + (evm.length - 10) + ' more</span>');
+    }
+    if (sol) chips.push('<span class="chain-chip">solana</span>');
+    $('wallet-chains').innerHTML = chips.join('');
+  } catch (e) {
+    $('wallet-cards').innerHTML = card('Error', 'Could not load wallet', e.message);
+  }
+}
+
+async function loadSkills() {
+  try {
+    const r = await fetch('/api/skills');
+    const s = await r.json();
+    $('skills-grid').innerHTML = s.skills.map(k =>
+      '<div class="skill-card">' +
+        '<div class="skill-head">' +
+          '<div class="skill-name">' + k.name + '</div>' +
+          '<div class="skill-id">' + k.id + '</div>' +
+        '</div>' +
+        '<div class="skill-desc">' + k.description + '</div>' +
+        '<div class="skill-cmds">' +
+          k.commands.map(c => '<span class="chip">onchainos ' + c + '</span>').join('') +
+        '</div>' +
+        '<div class="skill-usage">' +
+          '<span class="file">' + k.file + '</span>' +
+          '<span>' + k.usage + '</span>' +
+        '</div>' +
+      '</div>'
+    ).join('');
+  } catch (e) {
+    $('skills-grid').innerHTML = '<div class="skill-card"><div class="skill-desc">Error: ' + e.message + '</div></div>';
+  }
+}
 </script>
 </body>
 </html>

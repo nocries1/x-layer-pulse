@@ -170,10 +170,10 @@ Paste the hash into §3 above and into the Google Form submission.
 
 ### Strategy & safety
 
-- **Strategy** (`src/reasoner`): Buy signals from 3+ smart-money wallets in agreement = copy. Sells, low-cap (<$10k mcap in demo mode), high-risk (>60), or low-consensus = skip. Falls back to a deterministic heuristic if no `ANTHROPIC_API_KEY`.
+- **Strategy** (`src/reasoner`): Buy signals from 3+ smart-money wallets in agreement = copy. Sells, low-cap, high-risk (>60), or low-consensus = skip. Falls back to a deterministic heuristic if no `ANTHROPIC_API_KEY`.
 - **Safety gates** (`src/executor/safety.ts`): sell-skip, min market cap, max risk score, min signal size, token address required. Mainnet executor in the autonomous loop is **hard-disabled** — only `swap:once` can submit on mainnet.
 - **Position size** (`COPY_SIZE_USDC`): default 1 USDC per copy. Bump in `.env` to scale up.
-- **Demo mode** (`STRATEGY_MODE=demo`): lowers market-cap floor so the agent visibly acts during the recorded demo.
+- **Tunable thresholds**: market-cap floor, signal size, slippage, poll interval, and consensus count are all configurable via `.env` — inspect live values on the dashboard's **Strategy** tab.
 
 ---
 
