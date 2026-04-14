@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>X Layer Pulse — OKX Onchain Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* OKX palette */
+    --bg: #0b0b0b;
+    --bg-elev: #141414;
+    --panel: #1a1a1a;
+    --panel-2: #202020;
+    --border: #262626;
+    --border-strong: #333333;
+    --text: #ffffff;
+    --text-2: #b7b7b7;
+    --muted: #6e6e6e;
+    --green: #00d26b;
+    --green-soft: rgba(0, 210, 107, 0.12);
+    --red: #ff5c5c;
+    --red-soft: rgba(255, 92, 92, 0.12);
+    --yellow: #ffb800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: 'tnum'; }
+
+  /* ─── Top nav ────────────────────────────────────── */
+  nav {
+    height: 56px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 28px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 15px;
+  }
+  .brand .logo {
+    width: 26px; height: 26px;
+    background: var(--green);
+    border-radius: 6px;
+    display: grid; place-items: center;
+    font-size: 14px;
+    color: #000;
+  }
+  .nav-tabs { display: flex; gap: 22px; }
+  .nav-tabs a {
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 0;
+    position: relative;
+  }
+  .nav-tabs a.active { color: var(--text); }
+  .nav-tabs a.active::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -19px;
+    height: 2px; background: var(--green);
+  }
+  .nav-right {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 12px;
+    color: var(--text-2); font-size: 12px;
+  }
+  .pill {
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--panel); border: 1px solid var(--border);
+    font-size: 12px; color: var(--text);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pill.live::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .pill.green { background: var(--green-soft); border-color: transparent; color: var(--green); font-weight: 600; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  /* ─── KPI bar ────────────────────────────────────── */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .kpi {
+    background: var(--bg);
+    padding: 18px 22px;
+  }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .kpi-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .kpi-sub { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+
+  /* ─── Layout ─────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    height: calc(100vh - 56px - 99px);
+    min-height: 460px;
+  }
+  .panel { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-title {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .panel-tools { font-size: 11px; color: var(--muted); }
+  .panel-body { flex: 1; overflow-y: auto; }
+
+  /* ─── Whale feed table ───────────────────────────── */
+  .table { width: 100%; border-collapse: collapse; }
+  .table thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky; top: 0;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+  .table tbody tr:hover { background: var(--panel); }
+  .table tbody td {
+    padding: 12px 20px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+  .token-cell { display: flex; align-items: center; gap: 10px; }
+  .token-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--panel-2);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 600; color: var(--text-2);
+    border: 1px solid var(--border);
+  }
+  .token-name { font-weight: 600; font-size: 13px; }
+  .token-age { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .num { font-family: 'JetBrains Mono', monospace; font-feature-settings: 'tnum'; }
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  .muted { color: var(--muted); }
+  .text-2 { color: var(--text-2); }
+
+  .side-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+  }
+  .side-tag.buy { background: var(--green-soft); color: var(--green); }
+  .side-tag.sell { background: var(--red-soft); color: var(--red); }
+
+  /* ─── Reasoning + actions stacked ────────────────── */
+  .right-col { display: grid; grid-template-rows: 1fr 1fr; gap: 1px; background: var(--border); }
+  .reason-row, .action-row {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .reason-row:last-child, .action-row:last-child { border-bottom: 0; }
+  .reason-head, .action-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badge.copy { background: var(--green-soft); color: var(--green); }
+  .badge.skip { background: rgba(255,255,255,0.06); color: var(--text-2); }
+  .reason-text { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+  .action-meta {
+    font-size: 11px; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .action-meta a {
+    color: var(--green); text-decoration: none; font-weight: 500;
+  }
+  .action-meta a:hover { text-decoration: underline; }
+
+  /* ─── Empty state ────────────────────────────────── */
+  .empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <div class="logo">P</div>
+    X Layer Pulse
+  </div>
+  <div class="nav-tabs">
+    <a href="#" class="active">Live Feed</a>
+    <a href="#">Strategy</a>
+    <a href="#">Wallet</a>
+    <a href="#">Onchain OS</a>
+  </div>
+  <div class="nav-right">
+    <span class="pill live">Live</span>
+    <span class="pill"><span id="m-net">…</span></span>
+    <span class="pill"><span class="muted">Agent</span> &nbsp;<span id="m-addr" class="mono">…</span></span>
+  </div>
+</nav>
+
+<div class="kpis">
+  <div class="kpi">
+    <div class="kpi-label">Signals seen</div>
+    <div class="kpi-value mono" id="kpi-signals">0</div>
+    <div class="kpi-sub">since boot</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Copies executed</div>
+    <div class="kpi-value mono green" id="kpi-copies">0</div>
+    <div class="kpi-sub">onchain transactions</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">x402 spent</div>
+    <div class="kpi-value mono" id="kpi-x402">$0.00</div>
+    <div class="kpi-sub">paid risk lookups</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Last action</div>
+    <div class="kpi-value" id="kpi-last">—</div>
+    <div class="kpi-sub" id="kpi-mode">mode: …</div>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- Whale feed table -->
+  <section class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><span class="dot"></span>Smart-money signals</div>
+      <div class="panel-tools">via <span class="green">onchainos signal list</span></div>
+    </div>
+    <div class="panel-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Side</th>
+            <th>Amount</th>
+            <th>MCap</th>
+            <th>Wallets</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="feed">
+          <tr><td colspan="6" class="empty">Waiting for signals…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Right column: reasoning + actions -->
+  <section class="right-col">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="dot"></span>Agent reasoning</div>
+        <div class="panel-tools">Claude Sonnet 4.6</div>
+      </div>
+      <div class="panel-body" id="reason">
+        <div class="empty">Waiting for the agent to think…</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="dot"></span>Onchain actions</div>
+        <div class="panel-tools">via <span class="green">onchainos swap execute</span></div>
+      </div>
+      <div class="panel-body" id="action">
+        <div class="empty">No actions yet.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let signalCount = 0, copyCount = 0, x402 = 0;
+
+function fmtUsd(n) {
+  if (!n && n !== 0) return '—';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(2) + 'K';
+  return '$' + n.toFixed(2);
+}
+function fmtTime(ts) {
+  const d = new Date(ts);
+  const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  return Math.floor(diff / 3600) + 'h ago';
+}
+function shortAddr(a) { return a ? a.slice(0, 6) + '…' + a.slice(-4) : '—'; }
+function shortHash(h) { return h ? h.slice(0, 8) + '…' + h.slice(-6) : ''; }
+function tokenInitial(sym) { return (sym || '?').slice(0, 2).toUpperCase(); }
+
+function clearEmpty(id) {
+  const el = $(id);
+  if (el.firstElementChild?.classList?.contains('empty') ||
+      el.querySelector(':scope > tr > td.empty')) {
+    el.innerHTML = '';
+  }
+}
+
+function prepend(id, node, max) {
+  clearEmpty(id);
+  const el = $(id);
+  el.insertBefore(node, el.firstChild);
+  while (el.children.length > max) el.removeChild(el.lastChild);
+}
+
+function renderEvent(ev) {
+  if (ev.type === 'boot') {
+    $('m-net').textContent = ev.network;
+    $('m-addr').textContent = shortAddr(ev.address);
+    $('kpi-mode').textContent = 'mode: ' + ev.mode;
+    return;
+  }
+  if (ev.type !== 'tick') return;
+
+  const { event: whale, decision, result } = ev;
+  signalCount++;
+  $('kpi-signals').textContent = signalCount;
+
+  if (whale) {
+    const sideClass = whale.side === 'buy' ? 'buy' : 'sell';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="token-cell">
+          <div class="token-icon">${tokenInitial(whale.tokenSymbol)}</div>
+          <div>
+            <div class="token-name">${whale.tokenSymbol}</div>
+            <div class="token-age mono">${shortAddr(whale.tokenAddress)}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="side-tag ${sideClass}">${whale.side.toUpperCase()}</span></td>
+      <td class="num">${fmtUsd(whale.amountUsd)}</td>
+      <td class="num text-2">${fmtUsd(whale.marketCapUsd)}</td>
+      <td class="num text-2">${whale.triggerWalletCount} <span class="muted">${whale.walletType}</span></td>
+      <td class="num muted">${fmtTime(ev.ts)}</td>
+    `;
+    prepend('feed', tr, 25);
+  }
+
+  if (decision) {
+    const isCopy = decision.action === 'copy';
+    const div = document.createElement('div');
+    div.className = 'reason-row';
+    div.innerHTML = `
+      <div class="reason-head">
+        <span><span class="badge ${isCopy ? 'copy' : 'skip'}">${decision.action}</span> &nbsp;<b>${decision.tokenSymbol}</b></span>
+        <span class="muted mono">conf ${decision.confidence?.toFixed?.(2) ?? '?'}</span>
+      </div>
+      <div class="reason-text">${decision.rationale}</div>
+    `;
+    prepend('reason', div, 12);
+    $('kpi-last').textContent = decision.action === 'copy' ? 'COPY' : 'SKIP';
+  }
+
+  if (result) {
+    const div = document.createElement('div');
+    div.className = 'action-row';
+    if (result.executed) {
+      copyCount++;
+      $('kpi-copies').textContent = copyCount;
+      const url = `https://www.oklink.com/xlayer/tx/${result.txHash}`;
+      div.innerHTML = `
+        <div class="action-head">
+          <span><span class="badge copy">copied</span> &nbsp;<b>${result.tokenSymbol}</b></span>
+          <span class="action-meta">
+            <a href="${url}" target="_blank" class="mono">${shortHash(result.txHash)} ↗</a>
+          </span>
+        </div>
+      `;
+    } else {
+      div.innerHTML = `
+        <div class="action-head">
+          <span><span class="badge skip">held</span> &nbsp;<span class="text-2">${result.tokenSymbol ?? '—'}</span></span>
+          <span class="action-meta muted">${result.reason}</span>
+        </div>
+      `;
+    }
+    prepend('action', div, 18);
+  }
+
+  if (whale?.riskCostUsd) {
+    x402 += whale.riskCostUsd;
+    $('kpi-x402').textContent = '$' + x402.toFixed(2);
+  }
+}
+
+async function loadInitial() {
+  try {
+    const res = await fetch('/api/state');
+    const events = await res.json();
+    events.forEach(renderEvent);
+  } catch (e) { console.error(e); }
+}
+
+function connect() {
+  const es = new EventSource('/api/stream');
+  es.onmessage = (msg) => {
+    try { renderEvent(JSON.parse(msg.data)); } catch {}
+  };
+  es.onerror = () => { es.close(); setTimeout(connect, 2000); };
+}
+
+loadInitial().then(connect);
+</script>
+</body>
+</html>
